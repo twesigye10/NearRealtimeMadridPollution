@@ -1,5 +1,0 @@
-
-
-Running the processing within Python3 environment
---------------------------------------------
-"C:\Program Files\ArcGIS\Pro\bin\Python\scripts\propy.bat" "C:\MadridPollution\MLAQI\processService.py"
