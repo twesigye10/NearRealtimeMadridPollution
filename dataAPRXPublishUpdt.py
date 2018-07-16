@@ -10,7 +10,7 @@ wrkspc = 'C:\\MadridPollution\\ToneDev\\'
 serviceName = "madridPollutionSurface"
 portal = "http://www.arcgis.com" # Can also reference a local portal
 user = "twesigye_uji"
-password = "y20tplt18jabs"
+password = "xxxxxxxxxxxx"
 
 # Set sharing options
 shrOrg = True
