@@ -10,7 +10,7 @@ wrkspc = 'C:\\MadridPollution\\ToneDev\\'
 serviceName = "madPSurface1"
 portal = "http://www.arcgis.com" # Can also reference a local portal
 user = "twesigye_uji"
-password = "y20tplt18jabs"
+password = "xxxxxxxxxxxxxx"
 
 # paths for the required files
 SDdraft = os.path.join(wrkspc, serviceName + ".sddraft")
