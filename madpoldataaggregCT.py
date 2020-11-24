@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 import time
-import timeFcDec
+import timeHandler
 
 
 def aggrData(a):
     # storing all data into a single list to be returned
     storePollData = []
-    # using the local time
-    currTimeLocal = time.localtime()
-    decTime = (currTimeLocal[3] + (float(currTimeLocal[4])/60))
-    dataIndexHolder = timeFcDec.currHour(decTime)
+    # # using the local time
+    # currTimeLocal = time.localtime()
+    # decTime = (currTimeLocal[3] + (float(currTimeLocal[4])/60))
+    dataIndexHolder = timeHandler.currHour(timeHandler.current_time())
     # extracting lines from the text file
     for lineData in a:
         if lineData[dataIndexHolder[1]] == 'V':
