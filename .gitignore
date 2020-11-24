@@ -1,0 +1,14 @@
+# ignore environment settings of the IDE
+venv/
+venv1/
+venv2/
+venv3/
+
+.env
+
+# ignore environment settings of the IDE
+*.idea
+
+# ignore cache
+__pycache__
+
