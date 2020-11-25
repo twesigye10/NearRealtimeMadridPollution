@@ -2,7 +2,7 @@
 import urllib.request
 import os
 import arcpy
-import madpoldataaggregCT  # calling the aggregation module
+import dataAggregator  # calling the aggregation module
 import madpolindexcalculation  # calling the index calculation module
 
 
@@ -77,17 +77,10 @@ fields = ["SHAPE@XY", "stnID", "stnName", "stnType", "stnElev", "MLAQI"]
 #      Fetching Data from the madrid city council URL
 
 source = "http://www.mambiente.munimadrid.es/opendata/horario.txt"
-with urllib.request.urlopen(source) as response:
-    byteData = response.read().decode('utf-8') # decode from byte format
-
 # store the decoded data in a 2D list
-rawData =[]
-kmt = byteData.split()
-for k in kmt:
-    rawData.append(k.split(","))
+raw_data = dataAggregator.prepare_raw_data(source)
 
-
-pldata = madpoldataaggregCT.aggrData(rawData)
+pldata = dataAggregator.aggregator_stn_data(raw_data)
 dWI = madpolindexcalculation.dataIndices(pldata)
 
 

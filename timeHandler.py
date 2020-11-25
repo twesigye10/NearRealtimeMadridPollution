@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
+# The time Handler Module
 
-import time
-
-# The time Handler Module 
+from datetime import datetime
+import pytz
 
 # checking to provide index positions of values at the current time(tm)
 
-
-def currHour(tm):
+def current_hour_data_indices(tm):
     # conditions for 24 hours time variation
     # d_v_i == data value index, v_t_i == index of the data validity test(V or N)
     if tm >= 0 and tm <= 24:
@@ -64,12 +63,18 @@ def currHour(tm):
 
 
 def current_time():
-    # using the local time
-    current_local_time = time.localtime()
-    dec_time = (current_local_time[3] + (float(current_local_time[4])/60))
+    # using the Madrid local time
+    time_zone = pytz.timezone('Europe/Madrid')
+    madrid_time_now = datetime.now(time_zone)
+
+    print("Madrid local time : {0}".format(madrid_time_now))
+    print("Hour : {0}, Minutes : {1}, Seconds : {2}".format(madrid_time_now.strftime('%H') ,madrid_time_now.strftime('%M') ,madrid_time_now.strftime('%S')))
+
+    dec_time = (int(madrid_time_now.strftime('%H')) + (int(madrid_time_now.strftime('%M'))/60))
+
     return dec_time
 
 
 if __name__ == '__main__':
-    data_and_validity_indices = currHour(current_time())
+    data_and_validity_indices = current_hour_data_indices(current_time())
     print ("Data index : {0}, Validity index : {1}".format(data_and_validity_indices[0], data_and_validity_indices[1]))
