@@ -4,6 +4,21 @@
 import urllib.request
 import timeHandler
 
+
+def prepare_raw_data(data_source):
+    #      Fetching Data from the madrid city council URL
+    # source = "http://www.mambiente.munimadrid.es/opendata/horario.txt"
+    with urllib.request.urlopen(data_source) as response:
+        byte_data = response.read().decode('utf-8') # decode from byte format
+    # store the decoded data in a 2D list
+    raw_data =[]
+    kmt = byte_data.split()
+    for k in kmt:
+        raw_data.append(k.split(","))
+
+    return raw_data
+
+
 def aggregator_stn_data(a):
     # storing all data into a single list to be returned
     store_poll_data = []
@@ -39,19 +54,6 @@ def aggregator_stn_data(a):
                 aggregate_stns_pollutant_data[r] += (" "+m[1]+" "+m[7])
     return aggregate_stns_pollutant_data
     pass
-
-def prepare_raw_data(data_source):
-    #      Fetching Data from the madrid city council URL
-    # source = "http://www.mambiente.munimadrid.es/opendata/horario.txt"
-    with urllib.request.urlopen(data_source) as response:
-        byte_data = response.read().decode('utf-8') # decode from byte format
-    # store the decoded data in a 2D list
-    raw_data =[]
-    kmt = byte_data.split()
-    for k in kmt:
-        raw_data.append(k.split(","))
-
-    return raw_data
 
 
 if __name__ == '__main__':

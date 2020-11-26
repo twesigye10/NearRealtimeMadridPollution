@@ -1,11 +1,18 @@
-# import madpoldataaggreg  # calling the aggregation module
-# pld = madpoldataaggreg.stnNos
+# Sub indices and final MLAQI calculation Module
 
-# Ilo - Index lower limit, Iup - Index upper limit
-# Plo - pollutant lower limit, Pup - pollutant upper limit
-# Px -  pollutant value whose index we want, Pco - pollutant code
+# Ilo - Index lower limit
+# Iup - Index upper limit
+# Plo - pollutant lower limit
+# Pup - pollutant upper limit
+# Px -  pollutant value whose index we want
+# Pco - pollutant code
 
 # indexLimits = [0, 50, 51, 100, 101, 150, >150]
+
+
+def mlaqi_sub_index(Ilo, Iup,Px,Plo,Pup):
+    sub_index = ((Px - Plo)/(Pup - Plo))*(Iup - Ilo) + Ilo
+    return sub_index
 
 
 # function for determining nitrogen params for index
@@ -22,8 +29,7 @@ def nitLim(Px):
         # arbitrary addition of 100 to the pollutant reading to allow index calc
         # arbitrary Iup of 200 for index calc
         Ilo, Iup, Plo, Pup = 151, 200, 301, Px+100
-    sx = ((Px - Plo)/(Pup - Plo))*(Iup - Ilo) + Ilo
-    return sx
+    return [Ilo, Iup, Px, Plo, Pup]
 
 
 # function for determining ozone params for index
@@ -40,13 +46,12 @@ def ozoLim(Px):
         # arbitrary addition of 100 to the pollutant reading to allow index calc
         # arbitrary Iup of 200 for index calc
         Ilo, Iup, Plo, Pup = 151, 200, 241, Px+100
-    sx = ((Px - Plo)/(Pup - Plo))*(Iup - Ilo) + Ilo
-    return sx
+    return [Ilo, Iup, Px, Plo, Pup]
 
 
 # function for determining pm10 params for index
 def ptnLim(Px):
-    # pmtenLimitValues = [0, 50, 51, 90, 91, 150]
+    # pm10 = [0, 50, 51, 90, 91, 150]
     # conditions for Pco 10(PM10)
     if Px >= 0 and Px <= 50:
         Ilo, Iup, Plo, Pup = 0, 50, 0, 50
@@ -58,13 +63,12 @@ def ptnLim(Px):
         # arbitrary addition of 100 to the pollutant reading to allow index calc
         # arbitrary Iup of 200 for index calc
         Ilo, Iup, Plo, Pup = 151, 200, 151, Px+100
-    sx = ((Px - Plo)/(Pup - Plo))*(Iup - Ilo) + Ilo
-    return sx
+    return [Ilo, Iup, Px, Plo, Pup]
 
 
 # function for determining pm2.5 params for index
 def ptfLim(Px):
-    # ptwodotfiveLimitValues = [0, 30, 31, 55, 56, 90]
+    # pm2.5LimitValues = [0, 30, 31, 55, 56, 90]
     # conditions for Pco 09(PM2.5)
     if Px >= 0 and Px <= 30:
         Ilo, Iup, Plo, Pup = 0, 50, 0, 30
@@ -76,8 +80,7 @@ def ptfLim(Px):
         # arbitrary addition of 100 to the pollutant reading to allow index calc
         # arbitrary Iup of 200 for index calc
         Ilo, Iup, Plo, Pup = 151, 200, 91, Px+100
-    sx = ((Px - Plo)/(Pup - Plo))*(Iup - Ilo) + Ilo
-    return sx
+    return [Ilo, Iup, Px, Plo, Pup]
 
 
 def dataIndices(a):
@@ -87,48 +90,56 @@ def dataIndices(a):
     wdl = len(a)  # the length of the whole data
     i = 0
     for i in range(wdl):
-        stnWithIndex = []
+        stn_with_index = []
         b = a[i].split()  # b is a station data list
         # navigate through a station data
         sdl = len(b)  # the length of the station data
         if "08" in b and sdl > 3:  # condition for core pollutant
             if "14" in b or "10" in b:  # condition for auxilliary pollutants
-                stnWithIndex.append(b[0])
-                subIndicesList = []
+                stn_with_index.append(b[0])
+                mlaqi_sub_indices_list = []
                 j = 1
                 for j in range(sdl):
                     # nitrogen a core pollutant, is already in the condition
-                    indexN = b.index("08")
-                    indexNV = indexN+1
-                    nitSubIndex = nitLim(float(b[indexNV]))
-                    subIndicesList.append(nitSubIndex)
+                    index__nitrogen__value = b.index("08") + 1
+                    nitrogen_limits = nitLim(float(b[index__nitrogen__value]))
+                    nitrogen_sub_index = mlaqi_sub_index(nitrogen_limits[0],nitrogen_limits[1],nitrogen_limits[2],nitrogen_limits[3],nitrogen_limits[4])
+                    mlaqi_sub_indices_list.append(nitrogen_sub_index)
                     # test existance of ozone in the station list
                     if "14" in b:
-                        indexO = b.index("14")
-                        indexOV = indexO+1
-                        ozoSubIndex = ozoLim(float(b[indexOV]))
-                        subIndicesList.append(ozoSubIndex)
+                        index_ozone_value = b.index("14") + 1
+                        ozone_limits = ozoLim(float(b[index_ozone_value]))
+                        ozone_sub_index = mlaqi_sub_index(ozone_limits[0],ozone_limits[1],ozone_limits[2],ozone_limits[3],ozone_limits[4])
+                        mlaqi_sub_indices_list.append(ozone_sub_index)
                     # test existance of pm10 in the station list
                     if "10" in b:
-                        indexT = b.index("10")
-                        indexTV = indexT+1
-                        ptnSubIndex = ptnLim(float(b[indexTV]))
-                        subIndicesList.append(ptnSubIndex)
+                        index_pm10_value = b.index("10") + 1
+                        pm10_limits = ptnLim(float(b[index_pm10_value]))
+                        pm10_sub_index = mlaqi_sub_index(pm10_limits[0],pm10_limits[1],pm10_limits[2],pm10_limits[3],pm10_limits[4])
+                        mlaqi_sub_indices_list.append(pm10_sub_index)
                     # test existance of pm25 in the station list
                     if "09" in b:
-                        indexF = b.index("09")
-                        indexFV = indexF+1
-                        ptfSubIndex = ptfLim(float(b[indexFV]))
-                        subIndicesList.append(ptfSubIndex)
+                        index_pm25_value = b.index("09") + 1
+                        pm25_limits = ptfLim(float(b[index_pm25_value]))
+                        pm25_sub_index = mlaqi_sub_index(pm25_limits[0],pm25_limits[1],pm25_limits[2],pm25_limits[3],pm25_limits[4])
+                        mlaqi_sub_indices_list.append(pm25_sub_index)
                     pass
-                stnIndex = int(round(max(subIndicesList)))
-                stnWithIndex.append(stnIndex)
-                finalDataList += stnWithIndex
+                station_max_mlaqi_value = int(round(max(mlaqi_sub_indices_list)))
+                stn_with_index.append(station_max_mlaqi_value)
+                finalDataList += stn_with_index
         pass
     return finalDataList
     pass
 
 
-#  excecuting the function
-# plExcect = dataIndices(pld)
-# print(plExcect)
+if __name__ == '__main__':
+    import dataAggregator  # calling the aggregation module
+    source = "http://www.mambiente.munimadrid.es/opendata/horario.txt"
+    raw_data = dataAggregator.prepare_raw_data(source)
+    # print("Raw data : {0}".format(raw_data))
+    aggregated_data = dataAggregator.aggregator_stn_data(raw_data)
+    print("Agrregated station data : {0}".format(aggregated_data))
+
+    mlaqi_index_data = dataIndices(aggregated_data)
+    print("MLAQI index data : {0}".format(mlaqi_index_data))
+
