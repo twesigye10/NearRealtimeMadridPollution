@@ -6,44 +6,56 @@ import dataAggregator  # calling the aggregation module
 import madpolindexcalculation  # calling the index calculation module
 
 
-arcpy.env.workspace = "C:\\MadridPollution\\ToneDev\\Madrid_Sensors.gdb"
+# Functions
+def create_fc_from_list(a_gdb_name, a_feature, a_geomtype, a_has_m, a_has_z, a_sr ):
+    if arcpy.Exists(a_feature):
+        arcpy.AddMessage('The feature : {0}, already exists in the database : {1}'.format(a_feature.split("\\")[-1], (a_gdb_name.split("\\")[-1])[:-4]))
+    else:
+        # Create empty FeatureClasses
+        arcpy.CreateFeatureclass_management(a_gdb_name + "\\", a_feature, a_geomtype, "", a_has_m, a_has_z, a_sr)
+        arcpy.AddMessage('Created new feature : {0}, in the database : {1}'.format(a_feature.split("\\")[-1], (a_gdb_name.split("\\")[-1])[:-4]))
+
+
+def create_field_from_list(a_feature, a_list):
+    if len(arcpy.ListFields(a_feature, a_list[0])) == 0:
+        arcpy.AddField_management(a_feature, a_list[0], a_list[1], a_list[2], a_list[3], a_list[4], a_list[5],
+                                  a_list[6], a_list[7], a_list[8])
+        arcpy.AddMessage('Fc : {0} , added new field : {1} '.format(a_feature.split("\\")[-1], a_list[0]))
+    else:
+        arcpy.AddMessage('Fc : {0} , already has field : {1} '.format(a_feature.split("\\")[-1], a_list[0]))
+
+
+# local variables
+gdbLocation = "C:\\MadridPollution\\ProjectSupportData\\Madrid_Sensors.gdb"
+arcpy.env.workspace = gdbLocation
 arcpy.env.overwriteOutput = True
 
-# local variables for feature class creation
-out_path = arcpy.env.workspace
 out_name = "testmadrid"
 geometry_type = "POINT"
 has_m = "DISABLED"
 has_z = "DISABLED"
 # projected coordinate system used for the area around madrid
 sr = arcpy.SpatialReference(25830)
-# Create empty point Featureclass
-arcpy.CreateFeatureclass_management(out_path, out_name, geometry_type, "", has_m, has_z, sr)
 
+
+# Create empty point Featureclass
+create_fc_from_list(gdbLocation, out_name, geometry_type, has_m, has_z, sr)
 empData = out_name
 
-
 # adding required fields
-def addRFields(featLyr):
-    nFieldName = "stnID"
-    if len(arcpy.ListFields(featLyr, nFieldName)) == 0:
-        arcpy.AddField_management(featLyr, nFieldName, "TEXT")
-    nFieldName = "stnName"
-    if len(arcpy.ListFields(featLyr, nFieldName)) == 0:
-        arcpy.AddField_management(featLyr, nFieldName, "TEXT")
-    nFieldName = "stnType"
-    if len(arcpy.ListFields(featLyr, nFieldName)) == 0:
-        arcpy.AddField_management(featLyr, nFieldName, "TEXT")
-    nFieldName = "stnElev"
-    if len(arcpy.ListFields(featLyr, nFieldName)) == 0:
-        arcpy.AddField_management(featLyr, nFieldName, "SHORT")
-    nFieldName = "MLAQI"
-    if len(arcpy.ListFields(featLyr, nFieldName)) == 0:
-        arcpy.AddField_management(featLyr, nFieldName, "SHORT")
+feilds_to_add_flist = [
+        ["stnID", "TEXT", "", "", "", "", "", "", ""],
+        ["stnName", "TEXT", "", "", "", "", "", "", ""],
+        ["stnType", "TEXT", "", "", "", "", "", "", ""],
+        ["stnElev", "SHORT", "", "", "", "", "", "", ""],
+        ["MLAQI", "SHORT", "", "", "", "", "", "", ""]
+    ]
 
+# add fields
+for fdata in feilds_to_add_flist:
+    create_field_from_list(empData, fdata)
 
-# check if fields are added
-addRFields(empData)
+# addRFields(empData)
 
 stnLoc = [['004', 'Plaza de España', 439577.503, 4475070.366, 637, 'Urbana de tráfico'],
     ['008', 'Escuelas Aguirre', 442117.68, 4474786.082, 672, 'Urbana de tráfico'],
@@ -74,8 +86,7 @@ stnLoc = [['004', 'Plaza de España', 439577.503, 4475070.366, 637, 'Urbana de t
 # Adding points and updating the fields
 fields = ["SHAPE@XY", "stnID", "stnName", "stnType", "stnElev", "MLAQI"]
 
-#      Fetching Data from the madrid city council URL
-
+# Fetching Data from the madrid city council URL
 source = "http://www.mambiente.munimadrid.es/opendata/horario.txt"
 # store the decoded data in a 2D list
 raw_data = dataAggregator.prepare_raw_data(source)
@@ -106,19 +117,11 @@ def usedStnData(a, b):
     pass
 
 
-# print usedStnData(stnLoc, dWI)
-
-
 # organise the data according to feature class structure using draftData
 draftData = []
 shpData = usedStnData(stnLoc, dWI)
 for rowStn in shpData:
-    ptLoc = (rowStn[2], rowStn[3])
-    ptID = rowStn[0]
-    ptNam = rowStn[1]
-    ptTy = rowStn[5]
-    ptEl = rowStn[4]
-    ptInd = rowStn[6]
+    ptLoc, ptID, ptNam, ptTy, ptEl, ptInd = (rowStn[2], rowStn[3]), rowStn[0],rowStn[1],rowStn[5],rowStn[4],rowStn[6]
     ptdec = (ptLoc, ptID, ptNam, ptTy, ptEl, ptInd)
     draftData.append(ptdec)
 # insert the data into the feature class
@@ -176,3 +179,13 @@ arcpy.Select_analysis(sepFeat, "Acceptable", "Classes = 1")
 arcpy.Select_analysis(sepFeat, "Poor", "Classes = 2")
 arcpy.Select_analysis(sepFeat, "VeryPoor", "Classes = 3")
 print ("This is the last index category")
+
+arcpy.AddMessage("""
+**************************************************
+***** Finished processing the data in : {0}  *****
+**************************************************
+""".format(gdbLocation) )
+
+if __name__ == '__main__':
+    data_sorting = usedStnData(stnLoc, dWI)
+    print ("The sorted data from used sensor stations : {0}".format(data_sorting))

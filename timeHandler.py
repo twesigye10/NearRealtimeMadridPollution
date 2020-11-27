@@ -66,10 +66,8 @@ def current_time():
     # using the Madrid local time
     time_zone = pytz.timezone('Europe/Madrid')
     madrid_time_now = datetime.now(time_zone)
-
-    print("Madrid local time : {0}".format(madrid_time_now))
-    print("Hour : {0}, Minutes : {1}, Seconds : {2}".format(madrid_time_now.strftime('%H') ,madrid_time_now.strftime('%M') ,madrid_time_now.strftime('%S')))
-
+    # print("Madrid local time : {0}".format(madrid_time_now))
+    # print("Hour : {0}, Minutes : {1}, Seconds : {2}".format(madrid_time_now.strftime('%H') ,madrid_time_now.strftime('%M') ,madrid_time_now.strftime('%S')))
     dec_time = (int(madrid_time_now.strftime('%H')) + (int(madrid_time_now.strftime('%M'))/60))
 
     return dec_time

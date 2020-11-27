@@ -2,13 +2,13 @@
 import arcpy, os
 from arcgis.gis import GIS
 
-arcpy.env.workspace = os.path.join('C:\\', 'MadridPollution', 'ToneDev')
+arcpy.env.workspace = os.path.join('C:\\', 'MadridPollution', 'ProjectSupportData')
 arcpy.env.overwriteOutput = True
 
 # location of the map document
-wrkspc = 'C:\\MadridPollution\\ToneDev\\'
+wrkspc = 'C:\\MadridPollution\\ProjectSupportData\\'
 serviceName = "madridPollutionSurface"
-portal = "http://www.arcgis.com" # Can also reference a local portal
+portal = "https://www.arcgis.com" # Can also reference a local portal
 user = "twesigye_uji"
 password = "xxxxxxxxxxxx"
 
@@ -33,7 +33,7 @@ if os.path.exists(SD):
     arcpy.Delete_management(SD)
 
 # Location of the project and map
-aprx = arcpy.mp.ArcGISProject(wrkspc + "ToneDev.aprx")
+aprx = arcpy.mp.ArcGISProject(wrkspc + "ProjectSupportData.aprx")
 aprxMap = aprx.listMaps("Map")[0]
 
 arcpy.mp.CreateWebLayerSDDraft(aprxMap, SDdraft, serviceName, 'MY_HOSTED_SERVICES', 'FEATURE_ACCESS',

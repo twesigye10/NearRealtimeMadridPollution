@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import arcpy, os
 
-arcpy.env.workspace = os.path.join('C:\\', 'MadridPollution', 'ToneDev')
+arcpy.env.workspace = os.path.join('C:\\', 'MadridPollution', 'ProjectSupportData')
 arcpy.env.overwriteOutput = True
 
 # location of the map document
-wrkspc = 'C:\\MadridPollution\\ToneDev\\'
+wrkspc = 'C:\\MadridPollution\\ProjectSupportData\\'
 serviceName = "madPSurface"
 
 # paths for the required files
@@ -23,7 +23,7 @@ if os.path.exists(SD):
     arcpy.Delete_management(SD)
 
 # Location of the project and map
-aprx = arcpy.mp.ArcGISProject(wrkspc + "ToneDev.aprx")
+aprx = arcpy.mp.ArcGISProject(wrkspc + "ProjectSupportData.aprx")
 aprxMap = aprx.listMaps("Map")[0]
 
 arcpy.mp.CreateWebLayerSDDraft(aprxMap, SDdraft, serviceName, 'MY_HOSTED_SERVICES', 'FEATURE_ACCESS',
