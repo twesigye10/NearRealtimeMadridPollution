@@ -1,4 +1,4 @@
 # -*- coding: utf-8 -*-
-import dataProcessorArcGISPro
+import locationIntegrator
 import dataAPRXMgt
 import dataAPRXPublishUpdt
