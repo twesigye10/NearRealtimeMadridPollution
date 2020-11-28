@@ -12,3 +12,6 @@ venv3/
 # ignore cache
 __pycache__
 
+# ignore the testing script
+TesterPy.py
+

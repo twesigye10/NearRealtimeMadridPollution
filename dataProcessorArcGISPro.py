@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import urllib.request
 import os
 import arcpy
 import dataAggregator  # calling the aggregation module
@@ -25,6 +24,30 @@ def create_field_from_list(a_feature, a_list):
         arcpy.AddMessage('Fc : {0} , already has field : {1} '.format(a_feature.split("\\")[-1], a_list[0]))
 
 
+def formatted_stn_data_with_mlaqi(a, b):
+    # retrieve only stations with MLAQI measurements
+    stn_loc_used = []
+    kt = len(a)
+    i = 0
+    for i in range(kt):
+        if a[i][0] in b:
+            list_data = a[i]
+            mlaqi_stn_index = b.index(list_data[0])+1
+            # update the station data with the index
+            list_data.append(b[mlaqi_stn_index])
+            stn_loc_used.append(list_data)
+            i += 1
+
+    # organise the data according to feature class structure
+    formatted_stn_data = []
+    for row_stn in stn_loc_used:
+        pt_loc, pt_id, pt_nam, pt_ty, pt_el, pt_ind = (row_stn[2], row_stn[3]), row_stn[0], row_stn[1], row_stn[5], row_stn[4], row_stn[6]
+        ptdec = (pt_loc, pt_id, pt_nam, pt_ty, pt_el, pt_ind)
+        formatted_stn_data.append(ptdec)
+
+    return formatted_stn_data
+
+
 # local variables
 gdbLocation = "C:\\MadridPollution\\ProjectSupportData\\Madrid_Sensors.gdb"
 arcpy.env.workspace = gdbLocation
@@ -36,7 +59,6 @@ has_m = "DISABLED"
 has_z = "DISABLED"
 # projected coordinate system used for the area around madrid
 sr = arcpy.SpatialReference(25830)
-
 
 # Create empty point Featureclass
 create_fc_from_list(gdbLocation, out_name, geometry_type, has_m, has_z, sr)
@@ -52,8 +74,8 @@ feilds_to_add_flist = [
     ]
 
 # add fields
-for fdata in feilds_to_add_flist:
-    create_field_from_list(empData, fdata)
+for f_data in feilds_to_add_flist:
+    create_field_from_list(empData, f_data)
 
 # addRFields(empData)
 
@@ -94,39 +116,10 @@ raw_data = dataAggregator.prepare_raw_data(source)
 pldata = dataAggregator.aggregator_stn_data(raw_data)
 dWI = madpolindexcalculation.dataIndices(pldata)
 
-
-def usedStnData(a, b):
-    # retrieve only stations with MLAQI measurements
-    stnLocUsed = []
-    kt = len(a)
-    i = 0
-    for i in range(kt):
-        if a[i][0] in b:
-            listVal = a[i]
-            stnLocUsed.append(listVal)
-            i += 1
-    # update the used stations with the index
-    ktused = len(stnLocUsed)
-    j = 0
-    for j in range(ktused):
-        indIndex = b.index(stnLocUsed[j][0])+1
-        stnLocUsed[j].append(b[indIndex])
-        j += 1
-    # print stnLocUsed
-    return stnLocUsed
-    pass
-
-
-# organise the data according to feature class structure using draftData
-draftData = []
-shpData = usedStnData(stnLoc, dWI)
-for rowStn in shpData:
-    ptLoc, ptID, ptNam, ptTy, ptEl, ptInd = (rowStn[2], rowStn[3]), rowStn[0],rowStn[1],rowStn[5],rowStn[4],rowStn[6]
-    ptdec = (ptLoc, ptID, ptNam, ptTy, ptEl, ptInd)
-    draftData.append(ptdec)
 # insert the data into the feature class
+data_to_insert = formatted_stn_data_with_mlaqi(stnLoc, dWI)
 with arcpy.da.InsertCursor(empData, fields) as updLyr:
-        for row in draftData:
+        for row in data_to_insert:
             updLyr.insertRow(row)
 
 #           IDW Interpolation
@@ -187,5 +180,6 @@ arcpy.AddMessage("""
 """.format(gdbLocation) )
 
 if __name__ == '__main__':
-    data_sorting = usedStnData(stnLoc, dWI)
+    data_sorting = formatted_stn_data_with_mlaqi(stnLoc, dWI)
+    print ("The DWI data : {0}".format(dWI))
     print ("The sorted data from used sensor stations : {0}".format(data_sorting))
