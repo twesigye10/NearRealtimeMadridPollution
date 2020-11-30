@@ -96,9 +96,7 @@ stn_location_data = [['004', 'Plaza de España', 439577.503, 4475070.366, 637, '
 
 # # ------------------Processing------------------
 arcpy.AddMessage("""
-**************************************************
 *****   Started Integrating Location data    *****
-**************************************************
 """)
 
 # Create empty point feature class(fc)
@@ -125,7 +123,5 @@ with arcpy.da.InsertCursor(empty_fc, fields) as updLyr:
             updLyr.insertRow(row)
 
 arcpy.AddMessage("""
-**************************************************
 *****   Finished Integrating Location data   *****
-**************************************************
 """ )
