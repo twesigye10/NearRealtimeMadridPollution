@@ -8,6 +8,10 @@ arcpy.env.workspace = gdbLocation
 arcpy.env.overwriteOutput = True
 
 #           IDW Interpolation
+arcpy.AddMessage("""
+***** Started Spatial Interpolation  *****
+""" )
+
 # local variables for IDW interpolation
 in_feat = "testmadrid"
 zField = "MLAQI"
@@ -47,19 +51,17 @@ xy_tolerance = ""
 arcpy.Clip_analysis(clip_infeat, clip_feat, clip_outfeat, xy_tolerance)
 # reproject Features
 clipProjected = "clipFeatProj"
-arcpy.Project_management(clip_outfeat, clipProjected, "PROJCS['WGS_1984_Web_Mercator_Auxiliary_Sphere',GEOGCS['GCS_WGS_1984',DATUM['D_WGS_1984',SPHEROID['WGS_1984',6378137.0,298.257223563]],PRIMEM['Greenwich',0.0],UNIT['Degree',0.0174532925199433]],PROJECTION['Mercator_Auxiliary_Sphere'],PARAMETER['False_Easting',0.0],PARAMETER['False_Northing',0.0],PARAMETER['Central_Meridian',0.0],PARAMETER['Standard_Parallel_1',0.0],PARAMETER['Auxiliary_Sphere_Type',0.0],UNIT['Meter',1.0]]", "ETRS_1989_To_WGS_1984", "PROJCS['ETRS_1989_UTM_Zone_30N',GEOGCS['GCS_ETRS_1989',DATUM['D_ETRS_1989',SPHEROID['GRS_1980',6378137.0,298.257222101]],PRIMEM['Greenwich',0.0],UNIT['Degree',0.0174532925199433]],PROJECTION['Transverse_Mercator'],PARAMETER['False_Easting',500000.0],PARAMETER['False_Northing',0.0],PARAMETER['Central_Meridian',-3.0],PARAMETER['Scale_Factor',0.9996],PARAMETER['Latitude_Of_Origin',0.0],UNIT['Meter',1.0]]", "NO_PRESERVE_SHAPE", "", "NO_VERTICAL")
-
+processing_sr = arcpy.SpatialReference(25830)
+mapping_sr = arcpy.SpatialReference(3857)
+arcpy.Project_management(clip_outfeat, clipProjected, mapping_sr, "ETRS_1989_To_WGS_1984", processing_sr)
 
 # seperate the shape into seperate index categories
-sepFeat = clipProjected
-arcpy.Select_analysis(sepFeat, "Good", "Classes = 0")
-arcpy.Select_analysis(sepFeat, "Acceptable", "Classes = 1")
-arcpy.Select_analysis(sepFeat, "Poor", "Classes = 2")
-arcpy.Select_analysis(sepFeat, "VeryPoor", "Classes = 3")
+arcpy.Select_analysis(clipProjected, "Good", "Classes = 0")
+arcpy.Select_analysis(clipProjected, "Acceptable", "Classes = 1")
+arcpy.Select_analysis(clipProjected, "Poor", "Classes = 2")
+arcpy.Select_analysis(clipProjected, "VeryPoor", "Classes = 3")
 print ("This is the last index category")
 
 arcpy.AddMessage("""
-**************************************************
-***** Finished processing the data in : {0}  *****
-**************************************************
-""".format(gdbLocation) )
+***** Finished Spatial Interpolation  *****
+""" )
