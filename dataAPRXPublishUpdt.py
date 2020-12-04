@@ -9,8 +9,8 @@ arcpy.env.overwriteOutput = True
 wrkspc = 'C:\\MadridPollution\\ProjectSupportData\\'
 serviceName = "madridPollutionSurface"
 portal = "https://www.arcgis.com" # Can also reference a local portal
-user = "twesigye_uji"
-password = "xxxxxxxxxxxx"
+user = "user_name"
+password = "pass_word"
 
 # Set sharing options
 shrOrg = True
